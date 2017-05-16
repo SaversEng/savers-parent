@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.savers</groupId>
+	<artifactId>saversParent</artifactId>
+	<version>1.1.0.1</version>
+	<packaging>pom</packaging>
+	<name>Mule Service Parent</name>
+	<!-- Put this block in your POM files to run correctly - Check version, 
+		<parent> 
+			<groupId>com.savers</groupId> 
+			<artifactId>saversParent</artifactId> 
+			<version>1.0.0.0</version> 
+		</parent> 
+	-->
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<!--  DO NOT CHANGE THE JDK version to something less than 1.8 -->
+		<jdk.version>1.8</jdk.version>
+		<junit.version>4.12</junit.version>
+		<mule.tools.version>1.3</mule.tools.version>
+    <mule-app-maven-plugin.version>1.3</mule-app-maven-plugin.version>
+		<!-- Change this to change the version for all FUTURE MuleSoft Maven builds -->
+		<mule.version>3.8.4</mule.version>
+		<!-- Maven/Mule deployment plugin -->
+		<mule-maven-plugin.version>2.2.1</mule-maven-plugin.version>
+		<!-- Mule artifact plugin -->
+		<maven-mule-plugin.version>1.9</maven-mule-plugin.version>
+		<!-- Nexus deploy plugin  -->
+		<nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
+		<!-- DO NOT CHANGE THE SQL SERVER VERSION -->
+		<sqljdbc4.version>4.2</sqljdbc4.version>
+		<security-property-placeholder.version>1.6.0</security-property-placeholder.version>
+		<!-- The Maven deploy plugin is NOT USED only declared here to enable skipping it's configuration -->
+		<maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+		<maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
+		<!-- Dependency plugin see https://maven.apache.org/plugins/maven-dependency-plugin/ -->
+		<maven-dependency-plugin.version>3.0.0</maven-dependency-plugin.version>
+		<build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
+		<!-- JavaDoc generation plugin see https://maven.apache.org/plugins/maven-javadoc-plugin/index.html -->
+		<maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
+		<cglib.version>3.2.5</cglib.version>
+		<!-- Version of the Savers utilities -->
+		<savers.intUtils.version>1.1.0.0</savers.intUtils.version>
+    <build-helper-maven-plugin>1.7</build-helper-maven-plugin>
+    <!-- Minimum Code Coverage for all MuleSoft workflows that use MUnit -->
+    <mule-code-coverage>80</mule-code-coverage>
+  </properties>
+
+    <distributionManagement>
+        <!-- Location for the deployment of release artifacts -->
+        <repository>
+            <id>nexus</id>
+            <name>Savers-Production</name>
+            <url>http://ps0-mul-mgmt01.savers.com:8082/nexus/content/repositories/Savers-Production/</url>
+        </repository>
+        <!-- Location for the deployment of snapshot artifacts -->
+        <snapshotRepository>
+            <id>nexus-snapshots</id>
+            <name>Savers</name>
+            <url>http://ps0-mul-mgmt01.savers.com:8082/nexus/content/repositories/Savers/</url>
+        </snapshotRepository>
+    </distributionManagement>
+   
+	<build>
+    <!-- Setup the test resource locations -->
+    <testResources>
+        <testResource>
+            <directory>src/test/munit</directory>
+        </testResource>
+        <testResource>
+            <directory>src/test/resources</directory>
+        </testResource>
+    </testResources>
+		<plugins>
+			<!-- Disable the default plugin behavior -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>${maven-deploy-plugin.version}</version>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+      <plugin>
+        <groupId>org.mule.tools.maven</groupId>
+        <artifactId>mule-app-maven-plugin</artifactId>
+        <version>${mule.tools.version}</version>
+        <extensions>true</extensions>
+        <configuration>
+          <copyToAppsDirectory>true</copyToAppsDirectory>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>${build-helper-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>add-resource</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>add-resource</goal>
+            </goals>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>src/main/app/</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>			<!-- Setup the ESB distribution for running integration and unit tests -->
+        <!-- Setup the Nexus Plugin -->
+        <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <version>${nexus-staging-maven-plugin.version}</version>
+            <executions>
+                <execution>
+                    <id>default-deploy</id>
+                    <phase>deploy</phase>
+                    <goals>
+                        <goal>deploy</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <serverId>nexus</serverId>
+                <nexusUrl>http://ps0-mul-mgmt01.savers.com:8082/nexus/</nexusUrl>
+                <skipStaging>true</skipStaging>
+            </configuration>
+        </plugin>
+        <!-- Plugin to deploy applications to ARM -->
+        <plugin>
+            <groupId>org.mule.tools.maven</groupId>
+            <artifactId>mule-maven-plugin</artifactId>
+            <version>${mule-maven-plugin.version}</version>
+            <configuration>
+                <deploymentType>arm</deploymentType>
+                <username>${arm.username}</username>
+                <password>${arm.password}</password>
+                <target>${deploy.target}</target>
+                <!-- One of: server, serverGroup, cluster: -->
+                <targetType>${deploy.targettype}</targetType>
+                <environment>${deploy.env}</environment>
+                <businessGroup>${deploy.org}</businessGroup>
+                <mule.undeploy.TIMEOUT>120000</mule.undeploy.TIMEOUT>
+            </configuration>
+            <executions>
+                <execution>
+                    <id>deploy</id>
+                    <goals>
+                        <goal>deploy</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+        <!-- JavaDoc plugin -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>${maven-javadoc-plugin.version}</version>
+				</plugin>
+		</plugins>
+	</build>
+
+	<!-- Mule Dependencies -->
+	<dependencies>
+		<!-- Xml configuration -->
+		<dependency>
+			<groupId>com.mulesoft.muleesb</groupId>
+			<artifactId>mule-core-ee</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- Xml configuration -->
+		<dependency>
+			<groupId>com.mulesoft.muleesb.modules</groupId>
+			<artifactId>mule-module-spring-config-ee</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- SQL Server -->
+		<dependency>
+			<groupId>com.microsoft.sqlserver</groupId>
+			<artifactId>sqljdbc42</artifactId>
+			<version>${sqljdbc4.version}</version>
+		</dependency>
+		<!-- Mule Transports -->
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-db</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.transports</groupId>
+			<artifactId>mule-transport-file</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.transports</groupId>
+			<artifactId>mule-transport-http</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.mulesoft.muleesb.transports</groupId>
+			<artifactId>mule-transport-jdbc-ee</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.mulesoft.muleesb.transports</groupId>
+			<artifactId>mule-transport-jms-ee</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-apikit</artifactId>
+			<version>${mule.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-spring-security</artifactId>
+			<version>${mule.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.transports</groupId>
+			<artifactId>mule-transport-vm</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.transports</groupId>
+			<artifactId>mule-transport-email</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- Mule Modules -->
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-scripting</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-xml</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-json</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-schedulers</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- for testing -->
+		<dependency>
+			<groupId>org.mule.tests</groupId>
+			<artifactId>mule-tests-functional</artifactId>
+			<version>${mule.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.mulesoft.muleesb.modules</groupId>
+			<artifactId>mule-module-batch-ee</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- Dataweave -->
+		<dependency>
+			<groupId>com.mulesoft.weave</groupId>
+			<artifactId>mule-plugin-weave</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib</artifactId>
+			<version>${cglib.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.mulesoft.security</groupId>
+			<artifactId>mule-module-security-property-placeholder</artifactId>
+			<version>${security-property-placeholder.version}</version>
+		</dependency>
+		<!-- Savers utility -->
+		<dependency>
+			<groupId>com.savers.utility</groupId>
+			<artifactId>intUtils</artifactId>
+			<version>${savers.intUtils.version}</version>
+		</dependency>
+	</dependencies>
+</project>
