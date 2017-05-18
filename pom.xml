@@ -69,7 +69,6 @@
         </testResource>
     </testResources>
 		<plugins>
-			<!-- Disable the default plugin behavior -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-deploy-plugin</artifactId>
