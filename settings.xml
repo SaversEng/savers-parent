@@ -1,0 +1,33 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">    
+      
+    <pluginGroups>
+        <pluginGroup>org.mule.tools</pluginGroup>
+    </pluginGroups>
+    
+    <servers>
+        <server>
+          <id>MyGet</id>
+          <!-- only needed for private feeds or when deploying artifacts to the feed -->
+          <username>cadtools</username>
+          <password>457fce48-6107-4e33-b989-6b1657f712bc</password>
+        </server>
+    </servers>
+    
+    <profiles>
+        <profile>
+            <id>GitMyGet</id>
+            <activation>
+              <activeByDefault>true</activeByDefault>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>MyGet</id>
+                    <url>https://www.myget.org/F/savers-test/maven/</url>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+    
+</settings>
