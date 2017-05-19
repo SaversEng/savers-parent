@@ -54,7 +54,7 @@
         <repository>
             <id>MyGet</id>
             <name>MyGet</name>
-            <url>https://www.myget.org/F/savers-test/maven/</url>
+            <url>https://www.myget.org/F/savers_maven/maven/</url>
         </repository>
     </distributionManagement>
    
